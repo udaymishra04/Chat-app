@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import assets from "../assets/assets";
 import { motion, AnimatePresence } from "framer-motion";
-import { AuthContext } from "../../context/AuthContext";
 import { login } from "../features/auth/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useSocket } from "../hooks/useSocket";

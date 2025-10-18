@@ -4,7 +4,6 @@ import HomePage from './Pages/HomePage'
 import  LoginPage from './Pages/LoginPage'
 import ProfilePage from './Pages/ProfilePage'
 import {Toaster} from 'react-hot-toast'
-import { AuthContext } from '../context/AuthContext'
 import { useSelector } from 'react-redux'
 
 
