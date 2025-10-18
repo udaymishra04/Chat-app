@@ -2,22 +2,32 @@ import React, { useEffect, useRef, useState, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import assets from '../assets/assets';
 import { formatMessageTime } from '../lib/utils';
-import { AuthContext } from '../../context/AuthContext';
-import { ChatContext } from '../../context/ChatContext';
+// import { AuthContext } from '../../context/AuthContext';
+// import { ChatContext } from '../../context/ChatContext';
+import {useSelector,useDispatch} from 'react-redux';
+import {setSelectedUser, sendMessage, getMessages} from '../features/chat/chatSlice'
 import toast from 'react-hot-toast';
 
 const ChatContainer = () => {
   const scrollEnd = useRef();
   const [isTyping, setIsTyping] = useState(true);
   const [input, setInput] = useState('');
+  // To be written with dispatch func
+  // setSelectedUser, sendMessage, getMessages
+  // Creating dispatch instance
+  const dispatch = useDispatch();
 
-  const { messages = [], selectedUser, setSelectedUser, sendMessage, getMessages } = useContext(ChatContext);
-  const { authuser, onlineUser } = useContext(AuthContext);
+
+  // Using redux store to access these data
+  const { messages = [], selectedUser } = useSelector((state)=> {
+    return state.chat;
+  } )
+  const { authuser, onlineUser } = useSelector((state)=>state.auth)
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (input.trim() === '') return;
-    await sendMessage({ text: input.trim() });
+    dispatch(sendMessage({ text: input.trim() }))
     setInput('');
   };
 
@@ -29,7 +39,7 @@ const ChatContainer = () => {
     }
     const reader = new FileReader();
     reader.onloadend = async () => {
-      await sendMessage({ image: reader.result });
+      dispatch(sendMessage({ image: reader.result }))
       e.target.value = '';
     };
     reader.readAsDataURL(file);
@@ -41,7 +51,7 @@ const ChatContainer = () => {
   }, [messages]);
 
   useEffect(() => {
-    if (selectedUser) getMessages(selectedUser._id);
+    if (selectedUser) dispatch(getMessages(selectedUser._id));
   }, [selectedUser]);
 
   useEffect(() => {
@@ -98,7 +108,7 @@ const ChatContainer = () => {
         <div className="flex items-center gap-4">
           <motion.img
             whileTap={{ scale: 0.9 }}
-            onClick={() => setSelectedUser(null)}
+            onClick={() => dispatch(setSelectedUser(null))}
             src={assets.arrow_icon}
             className="md:hidden w-5 cursor-pointer"
           />

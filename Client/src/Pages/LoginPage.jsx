@@ -1,36 +1,59 @@
-import React, { useContext, useState } from 'react';
-import assets from '../assets/assets';
-import { motion, AnimatePresence } from 'framer-motion';
-import { AuthContext } from '../../context/AuthContext';
+import React, { useEffect, useState } from "react";
+import assets from "../assets/assets";
+import { motion, AnimatePresence } from "framer-motion";
+import { AuthContext } from "../../context/AuthContext";
+import { login } from "../features/auth/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { useSocket } from "../hooks/useSocket";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
-  const [currentState, setCurrentState] = useState('signUp');
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [bio, setBio] = useState('');
+  const [currentState, setCurrentState] = useState("signUp");
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [bio, setBio] = useState("");
   const [isDataSubmitted, setIsDataSubmitted] = useState(false);
-  const {login} = useContext(AuthContext)
+  const { authuser,token } = useSelector(state => state.auth);
+  // const {login} = useContext(AuthContext)
+  const dispatch = useDispatch();
+  const socket = useSocket(authuser?._id);
+  const navigate = useNavigate();
 
-  const onSubmitHandler = (event) => {
+  useEffect(() => {
+    if (authuser && token) {
+      navigate("/");
+    }
+  }, [authuser, token]);
+
+  const onSubmitHandler = async event => {
     event.preventDefault();
-    if (currentState === 'signUp' && !isDataSubmitted) {
+    if (currentState === "signUp" && !isDataSubmitted) {
       setIsDataSubmitted(true);
     }
-    login(currentState==="signUp" ? "signup" : "login" , {fullName, email, password, bio})
+    console.log(currentState === "signUp" ? "signup" : "login");
+    try {
+      const result = await dispatch(
+        login({
+          state: currentState === "signUp" ? "signup" : "login",
+          credentials: { fullName, email, password, bio }
+        })
+      ).unwrap(); // 👈 unwrap gives the real returned payload from thunk
+     
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
   };
 
   return (
-    <div className="min-h-screen w-full bg-cover bg-center flex items-center justify-center flex-col md:flex-row gap-10 px-6 py-10 bg-black/80 backdrop-blur-sm">      
-
+    <div className="min-h-screen w-full bg-cover bg-center flex items-center justify-center flex-col md:flex-row gap-10 px-6 py-10 bg-black/80 backdrop-blur-sm">
       {/* Form */}
       <motion.form
         onSubmit={onSubmitHandler}
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6 }}
-        className="w-full max-w-sm bg-white/10 border border-white/20 text-white rounded-2xl px-6 py-8 shadow-xl backdrop-blur-md flex flex-col gap-6"
-      >
+        className="w-full max-w-sm bg-white/10 border border-white/20 text-white rounded-2xl px-6 py-8 shadow-xl backdrop-blur-md flex flex-col gap-6">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-semibold capitalize">{currentState}</h2>
           {isDataSubmitted && (
@@ -44,7 +67,7 @@ const LoginPage = () => {
         </div>
 
         <AnimatePresence>
-          {currentState === 'signUp' && !isDataSubmitted && (
+          {currentState === "signUp" && !isDataSubmitted && (
             <motion.input
               key="fullname"
               initial={{ opacity: 0, y: 20 }}
@@ -54,7 +77,7 @@ const LoginPage = () => {
               type="text"
               placeholder="Full Name"
               value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              onChange={e => setFullName(e.target.value)}
               className="p-2 px-3 rounded-lg bg-white/20 text-white placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-400"
               required
             />
@@ -71,7 +94,7 @@ const LoginPage = () => {
               type="email"
               placeholder="Email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
               className="p-2 px-3 rounded-lg bg-white/20 text-white placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-400"
               required
             />
@@ -84,12 +107,12 @@ const LoginPage = () => {
               type="password"
               placeholder="Password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value)}
               className="p-2 px-3 rounded-lg bg-white/20 text-white placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-400"
               required
             />
 
-            {currentState === 'signUp' && (
+            {currentState === "signUp" && (
               <motion.textarea
                 key="bio"
                 initial={{ opacity: 0, y: 20 }}
@@ -97,7 +120,7 @@ const LoginPage = () => {
                 transition={{ duration: 0.4 }}
                 placeholder="Bio (optional)"
                 value={bio}
-                onChange={(e) => setBio(e.target.value)}
+                onChange={e => setBio(e.target.value)}
                 rows="3"
                 className="p-2 px-3 rounded-lg bg-white/20 text-white placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-400"
               />
@@ -109,20 +132,20 @@ const LoginPage = () => {
           whileTap={{ scale: 0.95 }}
           whileHover={{ scale: 1.02 }}
           type="submit"
-          className="bg-gradient-to-r from-violet-500 to-purple-600 text-white font-semibold py-2 rounded-lg hover:opacity-90 transition-all"
-        >
+          className="bg-gradient-to-r from-violet-500 to-purple-600 text-white font-semibold py-2 rounded-lg hover:opacity-90 transition-all">
           Continue
         </motion.button>
 
         <p className="text-sm text-gray-300 text-center">
-          {currentState === 'signUp' ? 'Already have an account?' : "Don't have an account?"}{' '}
+          {currentState === "signUp"
+            ? "Already have an account?"
+            : "Don't have an account?"}{" "}
           <span
             onClick={() =>
-              setCurrentState(currentState === 'signUp' ? 'login' : 'signUp')
+              setCurrentState(currentState === "signUp" ? "login" : "signUp")
             }
-            className="text-violet-400 underline cursor-pointer hover:text-violet-300"
-          >
-            {currentState === 'signUp' ? 'Login' : 'Sign Up'}
+            className="text-violet-400 underline cursor-pointer hover:text-violet-300">
+            {currentState === "signUp" ? "Login" : "Sign Up"}
           </span>
         </p>
       </motion.form>

@@ -2,10 +2,10 @@ import React, { useContext, useState } from 'react';
 import SideBar from '../Components/SideBar';
 import ChatContainer from '../Components/ChatContainer';
 import RightSideBar from '../Components/RightSideBar';
-import { ChatContext } from '../../context/ChatContext';
+import { useSelector } from 'react-redux';
 
 const HomePage = () => {
-  const {selectedUser} = useContext(ChatContext);
+  const {selectedUser} = useSelector((state)=>state.chat);
 
   return (
     <div className="flex w-full h-screen sm:px-[15%] sm:py-[5%] backdrop-blur-md">

@@ -5,11 +5,12 @@ import  LoginPage from './Pages/LoginPage'
 import ProfilePage from './Pages/ProfilePage'
 import {Toaster} from 'react-hot-toast'
 import { AuthContext } from '../context/AuthContext'
+import { useSelector } from 'react-redux'
 
 
 const App = () => {
 
-  const {authuser} = useContext(AuthContext)
+  const {authuser} = useSelector(state=>state.auth)
   console.log(authuser)
 
   return (

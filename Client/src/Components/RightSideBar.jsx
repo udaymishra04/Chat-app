@@ -1,12 +1,18 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { motion } from 'framer-motion';
 import assets from '../assets/assets';
-import { ChatContext } from '../../context/ChatContext';
-import { AuthContext } from '../../context/AuthContext';
+// import { ChatContext } from '../../context/ChatContext';
+// import { AuthContext } from '../../context/AuthContext';
+import { useDispatch,useSelector } from 'react-redux';
+import { logout } from '../features/auth/authSlice';
+import toast from "react-hot-toast";
+
 
 const RightSideBar = () => {
-  const { selectedUser, messages } = useContext(ChatContext);
-  const { logout, onlineUser } = useContext(AuthContext);
+  const { selectedUser, messages } = useSelector((state)=> state.chat);
+  // const { logout, onlineUser } = useContext(AuthContext);
+  const dispatch = useDispatch()
+  const {onlineUser} = useSelector((state)=>state.auth)
   const [messageImages, setMessageImages] = useState([]);
   const [activeTab, setActiveTab] = useState('default'); // 'default' | 'profile' | 'privacy' | 'notifications'
 
@@ -114,7 +120,8 @@ const RightSideBar = () => {
               </motion.button>
 
               <motion.button
-                onClick={logout}
+                onClick={()=>{dispatch(logout());
+                toast.success("User logged out successfully!");}}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 className="w-full bg-red-600 px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm"

@@ -2,11 +2,17 @@ import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import assets from '../assets/assets';
 import { motion } from 'framer-motion';
-import { AuthContext } from '../../context/AuthContext';
+// import { AuthContext } from '../../context/AuthContext';
+import {useDispatch,useSelector} from 'react-redux'
+import { updateProfile } from '../features/auth/authSlice';
 
 const ProfilePage = () => {
 
-  const {authuser, updateProfile} = useContext(AuthContext)
+  // const {authuser, updateProfile} = useContext(AuthContext)
+  // Getting data from store
+  const {authuser} = useSelector((state)=>state.auth)
+  // Creating dispatch instance
+  const dispatch = useDispatch();
 
   const [selectedImg, setSelectedImg] = useState(null);
   const [name, setName] = useState(authuser.fullName);
@@ -16,7 +22,7 @@ const ProfilePage = () => {
   const handleSubmit = async(e) => {
     e.preventDefault();
     if(!selectedImg){
-      await updateProfile({fullName: name, bio});
+      dispatch(updateProfile({fullName: name, bio}));
       navigate('/');
     return;
     }
@@ -24,7 +30,7 @@ const ProfilePage = () => {
     reader.readAsDataURL(selectedImg);
     reader.onload = async () =>{
       const base64Image = reader.result;
-      await updateProfile({profilePic: base64Image, fullName: name, bio})
+      dispatch(updateProfile({profilePic: base64Image, fullName: name, bio}))
       navigate('/')
     }
   };
